@@ -1,14 +1,19 @@
 #!/usr/bin/python3
-"""This module instantiates an object of class FileStorage"""
-import os
-from models.engine.file_storage import FileStorage
+""" City Module for HBNB project """
+from os import getenv
+from models.base_model import BaseModel
+import models
+import storage
+from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
-storage_type = os.getenv('HBNB_TYPE_STORAGE')
 
-if storage_type == "db":
-    from models.engine.db_storage import DBStorage
-    storage = DBStorage()
-else:
-    storage = FileStorage()
-
-storage.reload()
+class City(BaseModel):
+    """ The city class, contains state ID and name """
+    __tablename__ = 'cities'
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        name = Column(String(128), nullable=False)
+        state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
+    else:
+        name = ''
+        state_id = ''
