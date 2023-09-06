@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-import models
+from models.base_model import BaseModel
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
@@ -12,11 +19,11 @@ class FileStorage:
         """Returns a dictionary of models currently in storage"""
         if cls == None:
             return FileStorage.__objects
-        MyDict = {}
+        myDict = {}
         for key, value in FileStorage.__objects.items():
             if (value.__class__ == cls):
-                MyDict[key] = value
-        return MyDict
+                myDict[key] = value
+        return myDict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -33,14 +40,6 @@ class FileStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
-        from models.base_model import BaseModel
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
-
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
                     'State': State, 'City': City, 'Amenity': Amenity,
@@ -51,12 +50,12 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
 
     def delete(self, obj=None):
-        """delete obj from __objects if it's inside"""
-        if obj is not None:
-            Sayonara_key = str(obj.__class__.__name__) + '.' + (obj.id)
-            FileStorage.__objects.pop(Sayonara_key)
+        """Deletes and object from __objects"""
+        if (obj):
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+            del self.__objects[key]
