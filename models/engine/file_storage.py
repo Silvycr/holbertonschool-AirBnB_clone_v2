@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
-
+import models
 
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
@@ -9,19 +9,14 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """returns a dictionary
-        Return:
-            returns a dictionary of __object
-        """
-        if cls is None:
-            my_dict = {}
-            for key in Filestorage.__objects.items():
-                name = key.split('.')
-                if name[0] == cls.__name__:
-                    my_dict[key] = self.__objects[key]
-            return my_dict
-        else:
-            return Filestorage.__objects
+        """Returns a dictionary of models currently in storage"""
+        if cls == None:
+            return FileStorage.__objects
+        MyDict = {}
+        for key, value in FileStorage.__objects.items():
+            if (value.__class__ == cls):
+                MyDict[key] = value
+        return MyDict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -59,11 +54,9 @@ class FileStorage:
                         self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
-        
+
     def delete(self, obj=None):
         """delete obj from __objects if it's inside"""
         if obj is not None:
-            bye_key = str(obj.__class__.__name__) + '.' + (obj.id)
-            FileStorage.__objects.pop(bye_key)
-        else:
-            pass
+            Sayonara_key = str(obj.__class__.__name__) + '.' + (obj.id)
+            FileStorage.__objects.pop(Sayonara_key)
