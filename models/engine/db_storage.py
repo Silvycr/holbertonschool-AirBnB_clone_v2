@@ -6,14 +6,6 @@ Database mode, to be used with SQLAlchemy
 from os import getenv
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session, sessionmaker, scoped_session
-import models
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.state import State
-from models.user import User
-from models.base_model import BaseModel, Base
 
 
 class DBStorage:
@@ -31,9 +23,9 @@ class DBStorage:
         user = getenv('HBNB_MYSQL_USER')
         pwd = getenv('HBNB_MYSQL_PWD')
         host = getenv('HBNB_MYSQL_HOST')
-        database = getenv('HBNB_MYSQL_DB')
+        db = getenv('HBNB_MYSQL_DB')
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                      .format(user, pwd, host, database),
+                                      .format(user, pwd, host, db),
                                       pool_pre_ping=True)
         if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
@@ -45,8 +37,8 @@ class DBStorage:
         to class name passed in cls argument
         """
         obj_dict = {}
-        if cls != '':
-            objs = self.__session.query(cls)
+        if cls is not None:
+            objs = self.__session.query(cls).all()
         else:
             objs = self.__session.query(Amenity)
             # We could have used extend() list method too,
@@ -69,7 +61,7 @@ class DBStorage:
 
     def delete(self, obj):
         """ Delete obj of current db session """
-        if obj:
+        if obj is not None:
             self.__session.delete(obj)
 
     def reload(self):
@@ -77,15 +69,20 @@ class DBStorage:
         Commit all changes in database after
         the changings
         """
+
+        from models.base_model import BaseModel, Base
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+
+        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        self.__session = scoped_session(Session)
+
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(
-            bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session
 
     def close(self):
         """close session, proper ending"""
-        self.__session.remove()
-
-    def classes(self):
-        """ returns dictionary of valid classes """
+        DBStorage.__session.remove()
