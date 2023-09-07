@@ -6,19 +6,11 @@ from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 import os 
 
-if os.getenv("HBNB_TYPE_STORAGE") == 'db':
 
-    class City(BaseModel, Base):
-        """ The city class, contains state ID and name """
-        __tablename__ = "cities"
-        name = Column(String(128), nullable=False)
-        state_id = Column(String(60), ForeignKey("states.id"), nullable=False)
-        places = relationship(
-                                "Place",
-                                backref="cities",
-                                cascade="all, delete-orphan"
-                             )
-else:
-    class City(BaseModel):
-        state_id = ''
-        name = ''
+class City(BaseModel, Base):
+    """ The city class, contains state ID and name """
+    __tablename__ = "cities"
+    name = Column(String(128), nullable=False)
+    state_id = Column(String(60), ForeignKey("states.id"), nullable=False)
+    places = relationship('Place', backref='cities',
+                          cascade='all, delete, delete-orphan')
