@@ -14,6 +14,7 @@ from models.review import Review
 from models.amenity import Amenity
 
 
+
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
@@ -117,41 +118,33 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        args_parts = args.split()
-
-        if not args_parts:
+        split_args = args.split()
+        if not args:
             print("** class name missing **")
             return
-        elif args_parts[0] not in HBNBCommand.classes:
+        elif split_args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-
-        new_instance = HBNBCommand.classes[args_parts[0]]()
-        args_list = args_parts[1:]
-
-        for arg in args_list:
-            key, value = arg.split('=')
-
-            if value.startswith('"') and value.endswith('"'):
-                value = value[1:-1].replace('"', '\\"')
-                value = value.replace('_', ' ')
-
-            elif '.' in value:
-                try:
-                    value = float(value)
-                except ValueError:
-                    continue
-
+        new_instance = HBNBCommand.classes[split_args[0]]()
+        for i in range(1, len(split_args)):
+            key_val = split_args[i].partition('=')
+            new_key = key_val[0]
+            new_val = key_val[2]
+            if '\"' in new_val:
+                new_val = new_val[1:-1]
+                new_val = new_val.replace("_", " ")
+            elif '.' in new_val:
+                new_val = float(new_val)
             else:
-                try:
-                    value = int(value)
-                except ValueError:
-                    continue
-            setattr(new_instance, key, value)
+                new_val = int(new_val)
 
-        new_instance.save()
+            if hasattr(new_instance, new_key):
+                setattr(new_instance, new_key, new_val)
+
+        storage.new(new_instance)
+        storage.save()
         print(new_instance.id)
-        
+
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
@@ -231,7 +224,7 @@ class HBNBCommand(cmd.Cmd):
             store = storage.all(eval(args))
         else:
             store = storage._FileStorage__objects
-        
+
         if args:
             args = args.split(' ')[0]
             if args not in HBNBCommand.classes:
