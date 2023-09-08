@@ -1,17 +1,19 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
-import sqlalchemy
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, String, ForeignKey, Float, Integer
 from sqlalchemy.orm import relationship
+import os
 
-
-class Amenity(BaseModel, Base):
-    """
-    Amenity inherits from BaseModel and Base (respect the order)
-    """
-    from models.place import place_amenity
-    __tablename__ = "amenities"
-    name = Column(String(128), nullable=False)
-    places_amenities = relationship("Place", secondary=place_amenity,
-                                    back_populates="amenities")
+if os.getenv("HBNB_TYPE_STORAGE") == "db":
+    class Amenity(BaseModel, Base):
+        """Amenity inherits from BaseModel and Base (respect the order)"""
+        from models.place import place_amenity
+        __tablename__ = "amenities"
+        name = Column(String(128), nullable=False)
+        place_amenities = relationship("Place", secondary=place_amenity,
+                                       back_populates="amenities")
+else:
+    class Amenity(BaseModel):
+        """Class Amenity that inherits from BaseModel"""
+        name = ""
