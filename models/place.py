@@ -5,18 +5,18 @@ from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from os import getenv
 
-    
+
 if getenv("HBNB_TYPE_STORAGE") == 'db':
     place_amenity = Table('place_amenity', Base.metadata,
-                           Column('place_id', String(60),
-                                   ForeignKey('places.id'),
-                                   primary_key=True, nullable=False),
-                            Column('amenity_id', String(60),
-                                    ForeignKey('amenities.id'),
-                                    primary_key=True, nullable=False))
-        
+                        Column('place_id', String(60),
+                                ForeignKey('places.id'),
+                                primary_key=True, nullable=False),
+                        Column('amenity_id', String(60),
+                                ForeignKey('amenities.id'),
+                                primary_key=True, nullable=False))
+
     class Place(BaseModel, Base):
-        
+
         __tablename__ = 'places'
         city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
@@ -30,7 +30,7 @@ if getenv("HBNB_TYPE_STORAGE") == 'db':
         longitude = Column(Float, nullable=True)
         reviews = relationship("Review", backref='place',
                                 cascade='all, delete, delete-orphan')
-        amenities = relationship("Amenity", secondary=place_amenity, 
+        amenities = relationship("Amenity", secondary=place_amenity,
                                   back_populates="place_amenities",
                                   viewonly=False)
 else:
@@ -47,7 +47,7 @@ else:
         latitude = 0.0
         longitude = 0.0
         amenity_ids = []
-       
+
         @property
         def reviews(self):
             from models.review import Review
@@ -57,7 +57,7 @@ else:
             id_places = [v.id for v in place.values()]
             rev = [v for v in rev.values() if v.place_id in id_places]
             return rev
-        
+
         @property
         def amenities(self):
             from models.review import Amenity

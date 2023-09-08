@@ -7,6 +7,8 @@ from sqlalchemy.orm import relationship
 from os import getenv
 """ `getenv` to determine in which storage type we are
 by scanning the HBNB_TYPE_STORAGE"""
+
+
 class State(BaseModel, Base):
     """
     State class
