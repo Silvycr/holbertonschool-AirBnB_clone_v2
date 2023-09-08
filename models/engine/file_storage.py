@@ -13,11 +13,11 @@ class FileStorage:
         """Returns dictionnary __objects"""
         if cls is None:
             return FileStorage.__objects
-        myDict = {}
+        Dictionary = {}
         for key, value in FileStorage.__objects.items():
             if (value.__class__ == cls):
-                myDict[key] = value
-        return myDict
+                Dictionary[key] = value
+        return Dictionary
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -61,3 +61,7 @@ class FileStorage:
         if obj is not None:
             bye_key = str(obj.__class__.__name__) + '.' + (obj.id)
             FileStorage.__objects.pop(bye_key)
+
+    def close(self):
+        """Reload data"""
+        self.reload()
