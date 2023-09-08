@@ -34,45 +34,41 @@ if getenv("HBNB_TYPE_STORAGE") == 'db':
                                   back_populates="place_amenities",
                                   viewonly=False)
 else:
-    city_id = ""
-    user_id = ""
-    name = ""
-    description = ""
-    number_rooms = 0
-    number_bathrooms = 0
-    max_guest = 0
-    price_by_night = 0
-    latitude = 0.0
-    longitude = 0.0
-    amenity_ids = []
-    
-    @property
-    def reviews(self):
-        """
-        the getter attribute reviews returns
-        the list of Review.
-        """
-        from models.review import Review
-        from models import storage
-        r = []
-        all_reviews = storage.all(Review)
-        for v in all_reviews.values():
-            if v.place_id == self.id:
-                r.append(v)
-        return r
+    class Place(BaseModel):
+        """ A place to stay """
+        city_id = ""
+        user_id = ""
+        name = ""
+        description = ""
+        number_rooms = 0
+        number_bathrooms = 0
+        max_guest = 0
+        price_by_night = 0
+        latitude = 0.0
+        longitude = 0.0
+        amenity_ids = []
+       
+        @property
+        def reviews(self):
+            from models.review import Review
+            from models import storage
+            rev = storage.all(Review)
+            place = storage.all(Place)
+            id_places = [v.id for v in place.values()]
+            rev = [v for v in rev.values() if v.place_id in id_places]
+            return rev
+        
+        @property
+        def amenities(self):
+            from models.review import Amenity
+            amens = storage.all(Amenity)
+            list_amens = [amen for amen in amens.values()
+                          if amen.id in amenity_ids]
+            return list_amens
 
-    @property
-    def amenities(self):
-        """
-        Getter attribute amenities that returns the list of Amenity instances
-        based on the attribute amenity id.
-        """
-
-        return self._amenities
-
-    @amenities.setter
-    def amenities(self, obj):
-        if obj.__class__.__name__ == "Amenity":
-            amenity_ids.append(obj.id)
-        else:
-            pass
+        @amenities.setter
+        def amenities(self, obj):
+            if obj.__class__.__name__ == "Amenity":
+                amenity_ids.append(obj.id)
+            else:
+                pass
