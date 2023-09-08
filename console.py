@@ -12,6 +12,7 @@ from models.amenity import Amenity
 from models.review import Review
 from models.__init__ import storage
 
+
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
@@ -142,7 +143,6 @@ class HBNBCommand(cmd.Cmd):
         print(new_instance.id)
         storage.save()
 
-
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
@@ -222,7 +222,7 @@ class HBNBCommand(cmd.Cmd):
             store = storage.all(eval(args))
         else:
             store = storage._FileStorage__objects
-        
+
         if args:
             args = args.split(' ')[0]
             if args not in HBNBCommand.classes:
