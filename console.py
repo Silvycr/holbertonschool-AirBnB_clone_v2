@@ -2,15 +2,17 @@
 """ Console Module """
 import cmd
 import sys
-import os
+from os import getenv
+from shlex import split
 from models.base_model import BaseModel
+from models.__init__ import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
-from models.amenity import Amenity
 from models.review import Review
-from models.__init__ import storage
+from models.amenity import Amenity
+
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -20,8 +22,8 @@ class HBNBCommand(cmd.Cmd):
 
     classes = {
                'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
+               'State': State, 'City': City, 'Review': Review,
+               'Amenity': Amenity
               }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
@@ -113,36 +115,43 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, argument):
+    def do_create(self, args):
         """ Create an object of any class"""
-        arg_split = argument.split(" ")
-        if not argument:
+        args_parts = args.split()
+
+        if not args_parts:
             print("** class name missing **")
             return
-        elif arg_split[0] not in HBNBCommand.classes:
+        elif args_parts[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        input_dict = {}
-        parameter_split = arg_split[1:]
-        for value in parameter_split:
-            parameter_key, parameter_value = value.split("=")
-            if (parameter_value[0] == '"'):
-                var_to_replace = parameter_value[1:-1].replace("_", " ")
-                input_dict[parameter_key] =var_to_replace
-            elif '.' in parameter_value:
-                parameter_value = float(parameter_value)
-                input_dict[parameter_key] = parameter_value
+
+        new_instance = HBNBCommand.classes[args_parts[0]]()
+        args_list = args_parts[1:]
+
+        for arg in args_list:
+            key, value = arg.split('=')
+
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace('"', '\\"')
+                value = value.replace('_', ' ')
+
+            elif '.' in value:
+                try:
+                    value = float(value)
+                except ValueError:
+                    continue
+
             else:
-                parameter_value = int(parameter_value)
-                input_dict[parameter_key] = parameter_value
+                try:
+                    value = int(value)
+                except ValueError:
+                    continue
+            setattr(new_instance, key, value)
 
-        new_instance = HBNBCommand.classes[arg_split[0]]()
-        new_instance.__dict__.update(input_dict)
-        storage.new(new_instance)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
-
-
+        
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
@@ -218,7 +227,7 @@ class HBNBCommand(cmd.Cmd):
         """ Shows all objects, or all objects of a class"""
         print_list = []
 
-        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+        if getenv("HBNB_TYPE_STORAGE") == 'db':
             store = storage.all(eval(args))
         else:
             store = storage._FileStorage__objects
