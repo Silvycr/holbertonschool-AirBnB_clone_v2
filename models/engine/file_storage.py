@@ -13,11 +13,13 @@ class FileStorage:
         """Returns dictionnary __objects"""
         if cls is None:
             return FileStorage.__objects
-        my_dict = {}
-        for key, value in FileStorage.__objects.items():
-            if (value.__class__ == cls):
-                my_dict[key] = value
-        return my_dict
+        else:
+            my_dict = {}
+            for key, obj in FileStorage.__objects.items():
+                name = key.split('.')
+                if name[0] == cls.__name__:
+                    new_dict[key] = obj
+            return new_dict
         
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -57,11 +59,9 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """delete obj from __objects if it's inside"""
+        """Deletes an object from Storage"""
         if obj is not None:
-            bye_key = str(obj.__class__.__name__) + '.' + (obj.id)
-            FileStorage.__objects.pop(bye_key)
-
-    def close(self):
-        """Reload data"""
-        self.reload()
+            key = "{}.{}".format(obj.__class__.__name__, obj.id)
+            FileStorage.__objects.pop(key, None)
+        else:
+            pass

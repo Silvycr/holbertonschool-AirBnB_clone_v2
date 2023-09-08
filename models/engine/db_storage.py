@@ -34,21 +34,22 @@ class DBStorage:
         """
         Perform query on the current database session
         """
-        obj_dict = {}
-        if cls is not None:
-            classes = [State, City, Place, User, Review, Amenity]
-            objs = []
-            for cls in classes:
-                objs.extend(self.__session.query(cls).all())
-
-        """create and save data"""
-
-        new_dict = {}
-
-        for obj in objs:
-            key = '{}.{}'.format(type(obj).__name__, obj.id)
-            new_dict[key] = obj
-        return new_dict
+        new_dic = {}
+        types_mod = [State, City, User, Place, Amenity, Review]
+        if type(cls) == str:
+            return new_dic
+        if cls is not None and cls in types_mod:
+            query_list = self.__session.query(cls).all()
+            for x in query_list:
+                key = "{}.{}".format(type(x).__name__, x.id)
+                new_dic[key] = x
+        else:
+            for z in types_mod:
+                query_list2 = self.__session.query(z)
+                for el in query_list2:
+                    key = "{}.{}".format(type(x).__name__, x.id)
+                    new_dic[key] = x
+        return new_dic
 
     def new(self, obj):
         """Adds the object to the current db session"""
@@ -66,9 +67,9 @@ class DBStorage:
     def reload(self):
         """Create all tables in the database and create
         current database session"""
-        Base.metadata.create_all(self.__engine)
-        session_temp = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(session_temp)
+        self.__session = Base.metadata.create_all(self.__engine)
+        session_a = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_a)
         self.__session = Session()
 
     def close(self):
