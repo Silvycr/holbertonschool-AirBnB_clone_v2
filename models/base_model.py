@@ -18,37 +18,38 @@ class BaseModel:
                             nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow,
                             nullable=False)
-    
-    def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        if not kwargs:
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = self.created_at
-        else:
-            if kwargs.get("created_at"):
-                kwargs["created_at"] = datetime.strptime(
-                    kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.created_at = datetime.now()
-            if kwargs.get("created_at"):
-                kwargs["updated_at"] = datetime.strptime(
-                    kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.updated_at = datetime.now()
-            for key, value in kwargs.items():
-                if "__class__" not in key:
-                    setattr(self, key, value)
-            if not self.id:
+    else:
+        def __init__(self, *args, **kwargs):
+            """Instatntiates a new model"""
+            if not kwargs:
                 self.id = str(uuid.uuid4())
+                self.created_at = datetime.now()
+                self.updated_at = self.created_at
+            else:
+                if kwargs.get("created_at"):
+                    kwargs["created_at"] = datetime.strptime(
+                        kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
+                else:
+                    self.created_at = datetime.now()
+                if kwargs.get("udated_at"):
+                    kwargs["updated_at"] = datetime.strptime(
+                        kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
+                else:
+                    self.updated_at = datetime.now()
+                for key, value in kwargs.items():
+                    if "__class__" not in key:
+                        setattr(self, key, value)
+                if not self.id:
+                    self.id = str(uuid.uuid4())
 
     def __str__(self):
         """Returns a string representation of the instance"""
-        cls_name = self.__class__.__name__
-        return '[{}] ({}) {}'.format(cls_name, self.id, self.to_dict())
+        cls = (str(type(self)).split('.')[-1]).split('\'')[0]
+        return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
+        from models import storage
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
@@ -56,11 +57,13 @@ class BaseModel:
     def to_dict(self):
         """Convert instance into dict format"""
         dictionary = {}
-        for key, value in self.__dict__.items():
-            if key != '_sa_instance_state' and key != '__class__':
-                dictionary[key] = value
+        dictionary.update(self.__dict__)
+        dictionary.update({'__class__':
+                          (str(type(self)).split('.')[-1]).split('\'')[0]})
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
+        if '_sa_instance_state' in dictionary.keys():
+            dictionary.pop('_sa_instance_state', None)
         return dictionary
         
     def delete(self):
