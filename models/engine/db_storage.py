@@ -1,14 +1,16 @@
 #!/usr/bin/python3
-from sqlalchemy import (create_engine)
-from sqlalchemy.orm import Session, sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import MetaData, create_engine
 from os import getenv
 from models.base_model import BaseModel, Base
 from models.user import User
+from models.place import Place
 from models.state import State
 from models.city import City
-from models.place import Place
-from models.review import Review
 from models.amenity import Amenity
+from models.review import Review
 
 class DBStorage:
     __engine = None
@@ -67,7 +69,7 @@ class DBStorage:
     def reload(self):
         """Create all tables in the database and create
         current database session"""
-        self.__session = Base.metadata.create_all(self.__engine)
+        Base.metadata.create_all(self.__engine)
         session_a = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_a)
         self.__session = Session()
