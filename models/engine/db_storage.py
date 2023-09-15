@@ -12,6 +12,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.review import Review
 
+
 class DBStorage:
     __engine = None
     __session = None
@@ -76,4 +77,4 @@ class DBStorage:
 
     def close(self):
         """close session, proper ending"""
-        DBStorage.__session.close()
+        self.__session.close()

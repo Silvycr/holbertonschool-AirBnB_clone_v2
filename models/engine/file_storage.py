@@ -19,7 +19,7 @@ class FileStorage:
                 if name[0] == cls.__name__:
                     new_dict[key] = obj
             return new_dict
-        
+
     def new(self, obj):
         """Adds new object to storage dictionary"""
         self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
