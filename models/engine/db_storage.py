@@ -14,6 +14,7 @@ from models.review import Review
 
 
 class DBStorage:
+    """Placeholder"""
     __engine = None
     __session = None
 
