@@ -17,8 +17,8 @@ class FileStorage:
             for key, obj in FileStorage.__objects.items():
                 name = key.split('.')
                 if name[0] == cls.__name__:
-                    new_dict[key] = obj
-            return new_dict
+                    my_dict[key] = obj
+            return my_dict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
