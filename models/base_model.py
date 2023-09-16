@@ -31,11 +31,13 @@ class BaseModel:
                         kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
                 else:
                     self.created_at = datetime.now()
+                
                 if kwargs.get("updated_at"):
                     kwargs["updated_at"] = datetime.strptime(
                         kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
                 else:
                     self.updated_at = datetime.now()
+                
                 for key, value in kwargs.items():
                     if "__class__" == key:
                         continue
@@ -44,8 +46,7 @@ class BaseModel:
                     else:
                         self.id = str(uuid.uuid4())
                     setattr(self, key, value)
-                
-                
+                                
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
@@ -66,6 +67,7 @@ class BaseModel:
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
+        
         if '_sa_instance_state' in dictionary.keys():
             dictionary.pop('_sa_instance_state', None)
         return dictionary
