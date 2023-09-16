@@ -10,13 +10,13 @@ app = Flask(__name__)
 
 @app.teardown_appcontext
 def close(exception):
-    """Delete current session."""
+    """ Close session"""
     storage.close()
 
 
 @app.route('/states_list', strict_slashes=False)
 def states_list():
-    """Render a HTML page with a list of all State objects sorted by name"""
+    """ Show in HTML page with a list of all State """
     states = storage.all(State).values()
     sorted_states = sorted(states, key=lambda state: state.name)
     return render_template('7-states_list.html', states=sorted_states)
