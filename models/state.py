@@ -25,9 +25,9 @@ else:
             """
             Getter - returns the list of City instances
             """
-            from models.city import City 
+            from models.city import City
             l_cities = []
-            for city in storage.all('City').values():
+            for city in models.storage.all(City).values():
                 if city.state_id == self.id:
                     l_cities.append(city)
             return l_cities
