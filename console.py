@@ -13,8 +13,6 @@ from models.city import City
 from models.review import Review
 from models.amenity import Amenity
 
-
-
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
@@ -221,16 +219,16 @@ class HBNBCommand(cmd.Cmd):
         print_list = []
 
         if getenv("HBNB_TYPE_STORAGE") == 'db':
-            store = storage.all(eval(args))
+            get_store = storage.all(eval(args))
         else:
-            store = storage._FileStorage__objects
+            get_store = storage._FileStorage__objects
 
         if args:
             args = args.split(' ')[0]
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in store.items():
+            for k, v in get_store.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
